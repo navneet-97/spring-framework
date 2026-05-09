@@ -1,203 +1,266 @@
 import React, { useState } from "react";
-import axios from "axios";
+import getData from "../services/useContext";
 
 const AddProduct = () => {
-  const [product, setProduct] = useState({
-    name: "",
-    brand: "",
-    description: "",
-    price: "",
-    category: "",
-    stockQuantity: "",
-    releaseDate: "",
-    productAvailable: false,
-  });
-  const [image, setImage] = useState(null);
+    const { API } = getData();
+    const [product, setProduct] = useState({
+        name: "",
+        brand: "",
+        description: "",
+        price: 0,
+        category: "",
+        quantity: 0,
+        release_date: "",
+        available: false,
+    });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProduct({ ...product, [name]: value });
-  };
+    const [image, setImage] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
-    // setProduct({...product, image: e.target.files[0]})
-  };
+    const handleInputChange = (e) => {
+        const { name, value, type, checked } = e.target;
 
-  const submitHandler = (event) => {
-    event.preventDefault();
-    const formData = new FormData();
-    formData.append("imageFile", image);
-    formData.append(
-      "product",
-      new Blob([JSON.stringify(product)], { type: "application/json" })
+        setProduct({
+            ...product,
+            [name]: type === "checkbox" ? checked : value,
+        });
+    };
+
+    const handleImageChange = (e) => {
+        setImage(e.target.files[0]);
+    };
+
+    const submitHandler = async (e) => {
+        e.preventDefault();
+
+        try {
+            setLoading(true);
+            const formData = new FormData();
+            formData.append("imageFile", image);
+            formData.append(
+                "product",
+                new Blob(
+                    [JSON.stringify(product)],
+                    { type: "application/json" }
+                )
+            );
+
+            const response = await API.post(
+                "/product",
+                formData
+            );
+
+            alert("Product Added Successfully");
+            setProduct({
+                name: "",
+                brand: "",
+                description: "",
+                price: 0,
+                category: "",
+                quantity: 0,
+                release_date: "",
+                available: false,
+            });
+            setImage(null);
+        } catch (error) {
+            console.log(error);
+            alert("Failed To Add Product");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-100 py-10 px-4">
+            <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-3xl overflow-hidden">
+
+                {/* Header */}
+                <div className="bg-indigo-600 px-8 py-6">
+                    <h1 className="text-3xl font-bold text-white">
+                        Add New Product
+                    </h1>
+
+                    <p className="text-indigo-100 mt-2">
+                        Fill in product details below
+                    </p>
+                </div>
+
+                {/* Form */}
+                <form
+                    onSubmit={submitHandler}
+                    className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6"
+                >
+
+                    {/* Product Name */}
+                    <div>
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Product Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="name"
+                            value={product.name}
+                            onChange={handleInputChange}
+                            placeholder="Enter product name"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Brand */}
+                    <div>
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Brand
+                        </label>
+
+                        <input
+                            type="text"
+                            name="brand"
+                            value={product.brand}
+                            onChange={handleInputChange}
+                            placeholder="Enter brand"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Description */}
+                    <div className="md:col-span-2">
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Description
+                        </label>
+
+                        <textarea
+                            name="description"
+                            value={product.description}
+                            onChange={handleInputChange}
+                            rows="5"
+                            placeholder="Write product description..."
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                            required
+                        />
+                    </div>
+
+                    {/* Price */}
+                    <div>
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Price
+                        </label>
+
+                        <input
+                            type="number"
+                            name="price"
+                            value={product.price}
+                            onChange={handleInputChange}
+                            placeholder="Enter price"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Category
+                        </label>
+
+                        <select
+                            name="category"
+                            value={product.category}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        >
+                            <option value="">Select Category</option>
+                            <option value="Laptop">Laptop</option>
+                            <option value="Headphone">Headphone</option>
+                            <option value="Mobile">Mobile</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Toys">Toys</option>
+                            <option value="Fashion">Fashion</option>
+                        </select>
+                    </div>
+
+                    {/* Stock Quantity */}
+                    <div>
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Stock Quantity
+                        </label>
+
+                        <input
+                            type="number"
+                            name="quantity"
+                            value={product.quantity}
+                            onChange={handleInputChange}
+                            placeholder="Available stock"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Release Date */}
+                    <div>
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Release Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="release_date"
+                            value={product.release_date}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Image Upload */}
+                    <div className="md:col-span-2">
+                        <label className="block mb-2 font-semibold text-gray-700">
+                            Product Image
+                        </label>
+
+                        <input
+                            type="file"
+                            onChange={handleImageChange}
+                            className="w-full border border-dashed border-gray-400 rounded-xl p-4 bg-gray-50 cursor-pointer"
+                            required
+                        />
+                    </div>
+
+                    {/* Product Available */}
+                    <div className="md:col-span-2 flex items-center gap-3">
+                        <input
+                            type="checkbox"
+                            name="available"
+                            checked={product.available}
+                            onChange={handleInputChange}
+                            className="w-5 h-5 accent-indigo-600"
+                        />
+
+                        <label className="font-medium text-gray-700">
+                            Product Available
+                        </label>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="md:col-span-2">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`w-full py-4 rounded-2xl text-white font-semibold text-lg transition-all duration-300 ${loading
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl cursor-pointer"
+                                }`}
+                        >
+                            {loading ? "Adding Product..." : "Add Product"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     );
-
-    axios
-      .post("http://localhost:8080/api/product", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        console.log("Product added successfully:", response.data);
-        alert("Product added successfully");
-      })
-      .catch((error) => {
-        console.error("Error adding product:", error);
-        alert("Error adding product");
-      });
-  };
-
-  return (
-    <div className="container">
-    <div className="center-container">
-      <form className="row g-3 pt-5" onSubmit={submitHandler}>
-        <div className="col-md-6">
-          <label className="form-label">
-            <h6>Name</h6>
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Product Name"
-            onChange={handleInputChange}
-            value={product.name}
-            name="name"
-          />
-        </div>
-        <div className="col-md-6">
-          <label className="form-label">
-            <h6>Brand</h6>
-          </label>
-          <input
-            type="text"
-            name="brand"
-            className="form-control"
-            placeholder="Enter your Brand"
-            value={product.brand}
-            onChange={handleInputChange}
-            id="brand"
-          />
-        </div>
-        <div className="col-12">
-          <label className="form-label">
-            <h6>Description</h6>
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Add product description"
-            value={product.description}
-            name="description"
-            onChange={handleInputChange}
-            id="description"
-          />
-        </div>
-        <div className="col-5">
-          <label className="form-label">
-            <h6>Price</h6>
-          </label>
-          <input
-            type="number"
-            className="form-control"
-            placeholder="Eg: $1000"
-            onChange={handleInputChange}
-            value={product.price}
-            name="price"
-            id="price"
-          />
-        </div>
-     
-           <div className="col-md-6">
-          <label className="form-label">
-            <h6>Category</h6>
-          </label>
-          <select
-            className="form-select"
-            value={product.category}
-            onChange={handleInputChange}
-            name="category"
-            id="category"
-          >
-            <option value="">Select category</option>
-            <option value="Laptop">Laptop</option>
-            <option value="Headphone">Headphone</option>
-            <option value="Mobile">Mobile</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Toys">Toys</option>
-            <option value="Fashion">Fashion</option>
-          </select>
-        </div>
-
-        <div className="col-md-4">
-          <label className="form-label">
-            <h6>Stock Quantity</h6>
-          </label>
-          <input
-            type="number"
-            className="form-control"
-            placeholder="Stock Remaining"
-            onChange={handleInputChange}
-            value={product.stockQuantity}
-            name="stockQuantity"
-            // value={`${stockAlert}/${stockQuantity}`}
-            id="stockQuantity"
-          />
-        </div>
-        <div className="col-md-4">
-          <label className="form-label">
-            <h6>Release Date</h6>
-          </label>
-          <input
-            type="date"
-            className="form-control"
-            value={product.releaseDate}
-            name="releaseDate"
-            onChange={handleInputChange}
-            id="releaseDate"
-          />
-        </div>
-        {/* <input className='image-control' type="file" name='file' onChange={(e) => setProduct({...product, image: e.target.files[0]})} />
-    <button className="btn btn-primary" >Add Photo</button>  */}
-        <div className="col-md-4">
-          <label className="form-label">
-            <h6>Image</h6>
-          </label>
-          <input
-            className="form-control"
-            type="file"
-            onChange={handleImageChange}
-          />
-        </div>
-        <div className="col-12">
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              name="productAvailable"
-              id="gridCheck"
-              checked={product.productAvailable}
-              onChange={(e) =>
-                setProduct({ ...product, productAvailable: e.target.checked })
-              }
-            />
-            <label className="form-check-label">Product Available</label>
-          </div>
-        </div>
-        <div className="col-12">
-          <button
-            type="submit"
-            className="btn btn-primary"
-            // onClick={submitHandler}
-          >
-            Submit
-          </button>
-        </div>
-      </form>
-    </div>
-    </div>
-  );
 };
 
 export default AddProduct;

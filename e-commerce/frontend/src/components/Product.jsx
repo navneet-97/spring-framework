@@ -1,173 +1,185 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useContext, useEffect } from "react";
-import { useState } from "react";
-import AppContext from "../Context/Context";
-import axios from "../axios";
-import UpdateProduct from "./UpdateProduct";
+import { useEffect, useState } from "react";
+import getData from "../services/useContext";
+
 const Product = () => {
-  const { id } = useParams();
-  const { data, addToCart, removeFromCart, cart, refreshData } =
-    useContext(AppContext);
-  const [product, setProduct] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
-  const navigate = useNavigate();
+    const { id } = useParams();
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8080/api/product/${id}`
-        );
-        setProduct(response.data);
-        if (response.data.imageName) {
-          fetchImage();
+    const {
+        API,
+        addToCart,
+        removeFromCart,
+    } = getData();
+
+    const [loading, setLoading] = useState(true);
+    const [product, setProduct] = useState(null);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                setLoading(true);
+                const response = await API.get(`/product/${id}`);
+                setProduct(response.data);
+            } catch (error) {
+                console.error("Error fetching product:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProduct();
+    }, [id]);
+
+    const deleteProduct = async () => {
+        try {
+            await API.delete(`/product/${id}`);
+            removeFromCart(id);
+            navigate("/");
+        } catch (error) {
+            console.error("Error deleting product:", error);
         }
-      } catch (error) {
-        console.error("Error fetching product:", error);
-      }
     };
 
-    const fetchImage = async () => {
-      const response = await axios.get(
-        `http://localhost:8080/api/product/${id}/image`,
-        { responseType: "blob" }
-      );
-      setImageUrl(URL.createObjectURL(response.data));
+    const handleEditClick = () => {
+        navigate(`/product/update/${id}`);
     };
 
-    fetchProduct();
-  }, [id]);
+    const handleAddToCart = () => {
+        addToCart(product);
+    };
 
-  const deleteProduct = async () => {
-    try {
-      await axios.delete(`http://localhost:8080/api/product/${id}`);
-      removeFromCart(id);
-      console.log("Product deleted successfully");
-      alert("Product deleted successfully");
-      refreshData();
-      navigate("/");
-    } catch (error) {
-      console.error("Error deleting product:", error);
-    }
-  };
-
-  const handleEditClick = () => {
-    navigate(`/product/update/${id}`);
-  };
-
-  const handlAddToCart = () => {
-    addToCart(product);
-    alert("Product added to cart");
-  };
-  if (!product) {
-    return (
-      <h2 className="text-center" style={{ padding: "10rem" }}>
-        Loading...
-      </h2>
-    );
-  }
-  return (
-    <>
-      <div className="containers" style={{ display: "flex" }}>
-        <img
-          className="left-column-img"
-          src={imageUrl}
-          alt={product.imageName}
-          style={{ width: "50%", height: "auto" }}
-        />
-
-        <div className="right-column" style={{ width: "50%" }}>
-          <div className="product-description">
-            <div style={{display:'flex',justifyContent:'space-between' }}>
-            <span style={{ fontSize: "1.2rem", fontWeight: 'lighter' }}>
-              {product.category}
-            </span>
-            <p className="release-date" style={{ marginBottom: "2rem" }}>
-              
-              <h6>Listed : <span> <i> {new Date(product.releaseDate).toLocaleDateString()}</i></span></h6>
-              {/* <i> {new Date(product.releaseDate).toLocaleDateString()}</i> */}
-            </p>
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <h2 className="text-2xl font-semibold text-gray-700 animate-pulse">
+                    Loading Product...
+                </h2>
             </div>
-            
-           
-            <h1 style={{ fontSize: "2rem", marginBottom: "0.5rem",textTransform: 'capitalize', letterSpacing:'1px' }}>
-              {product.name}
-            </h1>
-            <i style={{ marginBottom: "3rem" }}>{product.brand}</i>
-            <p style={{fontWeight:'bold',fontSize:'1rem',margin:'10px 0px 0px'}}>PRODUCT DESCRIPTION :</p>
-            <p style={{ marginBottom: "1rem" }}>{product.description}</p>
-          </div>
+        );
+    }
 
-          <div className="product-price">
-            <span style={{ fontSize: "2rem", fontWeight: "bold" }}>
-              {"$" + product.price}
-            </span>
-            <button
-              className={`cart-btn ${
-                !product.productAvailable ? "disabled-btn" : ""
-              }`}
-              onClick={handlAddToCart}
-              disabled={!product.productAvailable}
-              style={{
-                padding: "1rem 2rem",
-                fontSize: "1rem",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                marginBottom: "1rem",
-              }}
-            >
-              {product.productAvailable ? "Add to cart" : "Out of Stock"}
-            </button>
-            <h6 style={{ marginBottom: "1rem" }}>
-              Stock Available :{" "}
-              <i style={{ color: "green", fontWeight: "bold" }}>
-                {product.stockQuantity}
-              </i>
-            </h6>
-          
-          </div>
-          <div className="update-button" style={{ display: "flex", gap: "1rem" }}>
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={handleEditClick}
-              style={{
-                padding: "1rem 2rem",
-                fontSize: "1rem",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              Update
-            </button>
-            {/* <UpdateProduct product={product} onUpdate={handleUpdate} /> */}
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={deleteProduct}
-              style={{
-                padding: "1rem 2rem",
-                fontSize: "1rem",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              Delete
-            </button>
-          </div>
+    if (!product) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <h2 className="text-2xl font-semibold text-red-500">
+                    Product Not Found
+                </h2>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-100 py-10 px-5">
+            <div className="max-w-7xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+
+                {/* Product Image */}
+                <div className="bg-gray-100 flex items-center justify-center p-8">
+                    <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full max-w-lg h-50px object-cover rounded-2xl shadow-md"
+                    />
+                </div>
+
+                {/* Product Details */}
+                <div className="p-8 lg:p-12 flex flex-col justify-between">
+
+                    <div>
+
+                        {/* Top Info */}
+                        <div className="flex items-start justify-between gap-4 mb-6">
+                            <span className="px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold">
+                                {product.category}
+                            </span>
+
+                            <div className="text-right text-sm text-gray-500">
+                                <p className="font-semibold">Listed</p>
+                                <p>
+                                    {new Date(
+                                        product.releaseDate
+                                    ).toLocaleDateString()}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Product Name */}
+                        <h1 className="text-4xl font-bold text-gray-800 capitalize leading-tight">
+                            {product.name}
+                        </h1>
+
+                        {/* Brand */}
+                        <p className="mt-3 text-lg italic text-gray-500">
+                            ~ {product.brand}
+                        </p>
+
+                        {/* Price */}
+                        <div className="mt-8 flex items-center gap-2">
+                            <span className="text-4xl font-bold text-indigo-600">
+                                ₹{product.price}
+                            </span>
+                        </div>
+
+                        {/* Description */}
+                        <div className="mt-10">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                                Product Description
+                            </h3>
+
+                            <p className="text-gray-600 leading-7">
+                                {product.description}
+                            </p>
+                        </div>
+
+                        {/* Stock */}
+                        <div className="mt-8">
+                            <p className="text-lg font-medium text-gray-700">
+                                Stock Available:
+                                <span className="ml-2 text-green-600 font-bold">
+                                    {product.stockQuantity}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="mt-10 flex flex-wrap gap-4">
+
+                        {/* Add To Cart */}
+                        <button
+                            onClick={handleAddToCart}
+                            disabled={!product.productAvailable}
+                            className={`px-8 py-4 rounded-2xl font-semibold transition-all duration-300 ${product.productAvailable
+                                ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg hover:shadow-xl"
+                                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                }`}
+                        >
+                            {product.productAvailable
+                                ? "Add to Cart"
+                                : "Out of Stock"}
+                        </button>
+
+                        {/* Update */}
+                        <button
+                            onClick={handleEditClick}
+                            className="px-8 py-4 rounded-2xl font-semibold bg-yellow-500 hover:bg-yellow-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+                        >
+                            Update
+                        </button>
+
+                        {/* Delete */}
+                        <button
+                            onClick={deleteProduct}
+                            className="px-8 py-4 rounded-2xl font-semibold bg-red-500 hover:bg-red-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </>
-  );
+    );
 };
 
 export default Product;
