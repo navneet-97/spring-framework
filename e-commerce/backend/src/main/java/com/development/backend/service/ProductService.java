@@ -1,9 +1,9 @@
 package com.development.backend.service;
 
+import com.development.backend.ProductNotFoundException;
 import com.development.backend.model.Product;
 import com.development.backend.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,17 +21,22 @@ public class ProductService {
     }
 
     public Product getProductById(int id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id)
+                .orElseThrow(()->new ProductNotFoundException("Product Not Found"));
     }
 
     public Product addProduct(Product product, MultipartFile imageFile) throws IOException {
         product.setImageName(imageFile.getOriginalFilename());
         product.setImageType(imageFile.getContentType());
         product.setImageData(imageFile.getBytes());
+
         return repository.save(product);
     }
 
     public Product updateProduct(int id, Product product, MultipartFile imageFile) throws IOException {
+        Product isExist=repository.findById(id)
+                .orElseThrow(()->new ProductNotFoundException("Product Not Found"));
+
         product.setImageName(imageFile.getOriginalFilename());
         product.setImageType(imageFile.getContentType());
         product.setImageData(imageFile.getBytes());
@@ -39,6 +44,7 @@ public class ProductService {
     }
 
     public void deleteProduct(int id) {
-        repository.deleteById(id);
+       Product product=repository.findById(id)
+               .orElseThrow(()->new ProductNotFoundException("Product Not Found"));
     }
 }

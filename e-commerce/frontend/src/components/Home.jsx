@@ -14,7 +14,7 @@ const Home = () => {
         error,
         addToCart,
     } = getData();
-
+    
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100">

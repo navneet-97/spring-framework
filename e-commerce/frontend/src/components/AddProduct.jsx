@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import getData from "../services/useContext";
+import { useNavigate } from "react-router-dom";
 
 const AddProduct = () => {
-    const { API } = getData();
+    const navigate=useNavigate();
+    const { API, fetchProducts } = getData();
     const [product, setProduct] = useState({
         name: "",
         brand: "",
         description: "",
-        price: 0,
+        price: "",
         category: "",
-        quantity: 0,
+        quantity: "",
         release_date: "",
         available: false,
     });
@@ -55,13 +57,16 @@ const AddProduct = () => {
                 name: "",
                 brand: "",
                 description: "",
-                price: 0,
+                price: "",
                 category: "",
-                quantity: 0,
+                quantity: "",
                 release_date: "",
                 available: false,
             });
+
             setImage(null);
+            fetchProducts();
+            navigate("/");
         } catch (error) {
             console.log(error);
             alert("Failed To Add Product");

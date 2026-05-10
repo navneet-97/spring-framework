@@ -1,222 +1,258 @@
-
-
-import React, { useContext, useState, useEffect } from "react";
-import AppContext from "../Context/Context";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import CheckoutPopup from "./CheckoutPopup";
-import { Button } from 'react-bootstrap';
+import { Button } from "react-bootstrap";
+import getData from "../services/useContext";
 
 const Cart = () => {
-  const { cart, removeFromCart , clearCart } = useContext(AppContext);
+  const {
+    cart,
+    removeFromCart,
+    clearCart,
+    API,
+    setCart
+  } = getData();
+
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [cartImage, setCartImage] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    const fetchImagesAndUpdateCart = async () => {
-      console.log("Cart", cart);
+    const fetchCartProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/products");
-        const backendProductIds = response.data.map((product) => product.id);
+        const updatedCartItems = await Promise.all(
+          cart.map(async (item) => {
 
-        const updatedCartItems = cart.filter((item) => backendProductIds.includes(item.id));
-        const cartItemsWithImages = await Promise.all(
-          updatedCartItems.map(async (item) => {
             try {
-              const response = await axios.get(
-                `http://localhost:8080/api/product/${item.id}/image`,
-                { responseType: "blob" }
+              const imageResponse = await API.get(
+                `/product/${item.id}/image`,
+                {
+                  responseType: "blob",
+                }
               );
-              const imageFile = await converUrlToFile(response.data, response.data.imageName);
-              setCartImage(imageFile)
-              const imageUrl = URL.createObjectURL(response.data);
-              return { ...item, imageUrl };
+
+              const imageUrl = URL.createObjectURL(imageResponse.data);
+
+              return { ...item, imageUrl, };
             } catch (error) {
-              console.error("Error fetching image:", error);
-              return { ...item, imageUrl: "placeholder-image-url" };
+              console.log("Image fetch failed", error);
+              return {
+                ...item,
+                imageUrl:
+                  "https://placehold.co/400x300?text=No+Image",
+              };
             }
           })
         );
-        console.log("cart",cart)
-        setCartItems(cartItemsWithImages);
+
+        setCartItems(updatedCartItems);
       } catch (error) {
-        console.error("Error fetching product data:", error);
+        console.log("Cart fetch error", error);
       }
     };
 
-    if (cart.length) {
-      fetchImagesAndUpdateCart();
+    if (cart?.length > 0) {
+      fetchCartProducts();
+    } else {
+      setCartItems([]);
     }
   }, [cart]);
 
   useEffect(() => {
     const total = cartItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
+      (acc, item) => acc + item.price * item.cartQuantity,
       0
     );
+
     setTotalPrice(total);
   }, [cartItems]);
 
-  const converUrlToFile = async (blobData, fileName) => {
-    const file = new File([blobData], fileName, { type: blobData.type });
-    return file;
-  }
-
   const handleIncreaseQuantity = (itemId) => {
-    const newCartItems = cartItems.map((item) => {
+    const updatedCart = cartItems.map((item) => {
       if (item.id === itemId) {
-        if (item.quantity < item.stockQuantity) {
-          return { ...item, quantity: item.quantity + 1 };
-        } else {
-          alert("Cannot add more than available stock");
+        if (item.cartQuantity < item.quantity) {
+          return {
+            ...item,
+            cartQuantity: item.cartQuantity + 1,
+          };
         }
+        alert("No more stock available");
       }
+      
       return item;
     });
-    setCartItems(newCartItems);
+
+    setCart(updatedCart);
+    setCartItems(updatedCart);
   };
-  
 
   const handleDecreaseQuantity = (itemId) => {
-    const newCartItems = cartItems.map((item) =>
+    const updatedCart = cartItems.map((item) =>
       item.id === itemId
-        ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
+        ? {
+          ...item,
+          cartQuantity: Math.max(item.cartQuantity - 1, 1),
+        }
         : item
     );
-    setCartItems(newCartItems);
+
+    setCart(updatedCart);
+    setCartItems(updatedCart);
   };
 
-  const handleRemoveFromCart = (itemId) => {
+  const handleRemoveItem = (itemId) => {
     removeFromCart(itemId);
-    const newCartItems = cartItems.filter((item) => item.id !== itemId);
-    setCartItems(newCartItems);
+    const updatedCart = cartItems.filter(
+      (item) => item.id !== itemId
+    );
+
+    setCartItems(updatedCart);
   };
 
   const handleCheckout = async () => {
     try {
       for (const item of cartItems) {
-        const { imageUrl, imageName, imageData, imageType, quantity, ...rest } = item;
-        const updatedStockQuantity = item.stockQuantity - item.quantity;
-  
-        const updatedProductData = { ...rest, stockQuantity: updatedStockQuantity };
-        console.log("updated product data", updatedProductData)
-  
-        const cartProduct = new FormData();
-        cartProduct.append("imageFile", cartImage);
-        cartProduct.append(
+        const updatedProduct = {
+          ...item,
+          quantity: item.quantity - item.cartQuantity,
+        };
+
+        const formData = new FormData();
+        formData.append(
           "product",
-          new Blob([JSON.stringify(updatedProductData)], { type: "application/json" })
+          new Blob(
+            [JSON.stringify(updatedProduct)],
+            {
+              type: "application/json",
+            }
+          )
         );
-  
-        await axios
-          .put(`http://localhost:8080/api/product/${item.id}`, cartProduct, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          })
-          .then((response) => {
-            console.log("Product updated successfully:", (cartProduct));
-          })
-          .catch((error) => {
-            console.error("Error updating product:", error);
-          });
+
+        const imageBlob = await fetch(item.imageUrl).then((res) =>
+          res.blob()
+        );
+
+        formData.append(
+          "imageFile",
+          imageBlob,
+          item.imageName || "product.jpg"
+        );
+
+        await API.put(
+          `/product/${item.id}`,
+          formData
+        );
       }
+
+      alert("Checkout Successful");
+
       clearCart();
       setCartItems([]);
       setShowModal(false);
+
     } catch (error) {
-      console.log("error during checkout", error);
+      console.log(error);
+      alert("Checkout Failed");
     }
   };
 
   return (
-    <div className="cart-container">
-      <div className="shopping-cart">
-        <div className="title">Shopping Bag</div>
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
+      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-8">
+        <h1 className="text-3xl font-bold mb-8">
+          Shopping Cart
+        </h1>
+
         {cartItems.length === 0 ? (
-          <div className="empty" style={{ textAlign: "left", padding: "2rem" }}>
-            <h4>Your cart is empty</h4>
+          <div className="text-center py-20">
+            <h2 className="text-2xl font-semibold text-gray-500">
+              Your cart is empty
+            </h2>
           </div>
         ) : (
           <>
-            {cartItems.map((item) => (
-              <li key={item.id} className="cart-item">
+            <div className="space-y-6">
+              {cartItems.map((item) => (
                 <div
-                  className="item"
-                  style={{ display: "flex", alignContent: "center" }}
                   key={item.id}
+                  className="flex flex-col md:flex-row items-center justify-between gap-6 border rounded-2xl p-5 shadow-sm"
                 >
-                 
-                  <div>
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="cart-item-image"
-                    />
-                  </div>
-                  <div className="description">
-                    <span>{item.brand}</span>
-                    <span>{item.name}</span>
+                  {/* Image */}
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className="w-40 h-40 object-cover rounded-xl"
+                  />
+
+                  {/* Info */}
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold">
+                      {item.name}
+                    </h2>
+                    <p className="text-gray-500">
+                      {item.brand}
+                    </p>
+                    <p className="mt-2 text-lg font-semibold">
+                      ₹ {item.price}
+                    </p>
                   </div>
 
-                  <div className="quantity">
+                  {/* Quantity */}
+                  <div className="flex items-center gap-3">
                     <button
-                      className="plus-btn"
-                      type="button"
-                      name="button"
-                      onClick={() => handleIncreaseQuantity(item.id)}
+                      onClick={() =>
+                        handleDecreaseQuantity(item.id)
+                      }
+                      className="w-10 h-10 bg-gray-200 rounded-lg text-xl"
                     >
-                      <i className="bi bi-plus-square-fill"></i>
+                      -
                     </button>
-                    <input
-                      type="button"
-                      name="name"
-                      value={item.quantity}
-                      readOnly
-                    />
+                    <span className="text-lg font-semibold">
+                      {item.cartQuantity}
+                    </span>
                     <button
-                      className="minus-btn"
-                      type="button"
-                      name="button"
-                      onClick={() => handleDecreaseQuantity(item.id)}
+                      onClick={() =>
+                        handleIncreaseQuantity(item.id)
+                      }
+                      className="w-10 h-10 bg-gray-200 rounded-lg text-xl"
                     >
-                      <i className="bi bi-dash-square-fill"></i>
+                      +
                     </button>
                   </div>
 
-                  <div className="total-price " style={{ textAlign: "center" }}>
-                    ${item.price * item.quantity}
+                  {/* Total */}
+                  <div className="text-xl font-bold">
+                    ₹ {item.price * item.cartQuantity}
                   </div>
+
+                  {/* Remove */}
                   <button
-                    className="remove-btn"
-                    onClick={() => handleRemoveFromCart(item.id)}
+                    onClick={() =>
+                      handleRemoveItem(item.id)
+                    }
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl"
                   >
-                    <i className="bi bi-trash3-fill"></i>
+                    Remove
                   </button>
                 </div>
-              </li>
-            ))}
-            <div className="total">Total: ${totalPrice}</div>
-            <Button
-              className="btn btn-primary"
-              style={{ width: "100%" }}
-              onClick={() => setShowModal(true)}
-            >
-              Checkout
-            </Button>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="mt-10 border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-5">
+              <h2 className="text-3xl font-bold">
+                Total: ₹ {totalPrice.toFixed(2)}
+              </h2>
+              <Button
+                onClick={handleCheckout}
+                className="px-10 py-3 rounded-2xl text-lg"
+              >
+                Checkout
+              </Button>
+            </div>
           </>
         )}
       </div>
-      <CheckoutPopup
-        show={showModal}
-        handleClose={() => setShowModal(false)}
-        cartItems={cartItems}
-        totalPrice={totalPrice}
-        handleCheckout={handleCheckout}
-      />
     </div>
-
   );
 };
 

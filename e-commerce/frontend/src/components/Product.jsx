@@ -9,6 +9,7 @@ const Product = () => {
         API,
         addToCart,
         removeFromCart,
+        fetchProducts,
     } = getData();
 
     const [loading, setLoading] = useState(true);
@@ -21,7 +22,21 @@ const Product = () => {
             try {
                 setLoading(true);
                 const response = await API.get(`/product/${id}`);
-                setProduct(response.data);
+
+                let imageUrl = "https://placehold.co/400x300?text=No+Image";
+
+                try {
+                    const imageResponse = await API.get(`/product/${response.data.id}/image`,
+                        {
+                            responseType: "blob",
+                        }
+                    );
+                    imageUrl = URL.createObjectURL(imageResponse.data);
+                } catch (error) {
+                    console.log("Image Fetch Failed", error);
+                }
+
+                setProduct({ ...response.data, imageUrl });
             } catch (error) {
                 console.error("Error fetching product:", error);
             } finally {
@@ -37,6 +52,7 @@ const Product = () => {
             await API.delete(`/product/${id}`);
             removeFromCart(id);
             navigate("/");
+            fetchProducts();
         } catch (error) {
             console.error("Error deleting product:", error);
         }
@@ -97,9 +113,7 @@ const Product = () => {
                             <div className="text-right text-sm text-gray-500">
                                 <p className="font-semibold">Listed</p>
                                 <p>
-                                    {new Date(
-                                        product.releaseDate
-                                    ).toLocaleDateString()}
+                                    {product.release_date}
                                 </p>
                             </div>
                         </div>
@@ -137,7 +151,7 @@ const Product = () => {
                             <p className="text-lg font-medium text-gray-700">
                                 Stock Available:
                                 <span className="ml-2 text-green-600 font-bold">
-                                    {product.stockQuantity}
+                                    {product.quantity}
                                 </span>
                             </p>
                         </div>
@@ -149,13 +163,13 @@ const Product = () => {
                         {/* Add To Cart */}
                         <button
                             onClick={handleAddToCart}
-                            disabled={!product.productAvailable}
-                            className={`px-8 py-4 rounded-2xl font-semibold transition-all duration-300 ${product.productAvailable
+                            disabled={!product.available}
+                            className={`px-8 py-4 rounded-2xl font-semibold transition-all duration-300 ${product.available
                                 ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg hover:shadow-xl"
                                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 }`}
                         >
-                            {product.productAvailable
+                            {product.available
                                 ? "Add to Cart"
                                 : "Out of Stock"}
                         </button>

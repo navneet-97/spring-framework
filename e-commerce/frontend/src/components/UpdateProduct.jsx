@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import getData from "../services/useContext";
 
 const UpdateProduct = () => {
+  const { API, fetchProducts } = getData();
   const { id } = useParams();
-  const [product, setProduct] = useState({});
-  const [image, setImage] = useState();
+  const navigate = useNavigate();
+
+  const [image, setImage] = useState(null);
+
   const [updateProduct, setUpdateProduct] = useState({
     id: null,
     name: "",
@@ -13,232 +16,270 @@ const UpdateProduct = () => {
     brand: "",
     price: "",
     category: "",
-    releaseDate: "",
-    productAvailable: false,
-    stockQuantity: "",
+    release_date: "",
+    available: false,
+    quantity: "",
   });
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8080/api/product/${id}`
+        const response = await API.get(`/product/${id}`);
+        const productData = response.data;
+        setUpdateProduct(productData);
+
+        // fetch image
+        const imageResponse = await API.get(`/product/${id}/image`,
+          {
+            responseType: "blob",
+          }
         );
 
-        setProduct(response.data);
-      
-        const responseImage = await axios.get(
-          `http://localhost:8080/api/product/${id}/image`,
-          { responseType: "blob" }
+        const imageFile = new File(
+          [imageResponse.data],
+          productData.imageName,
+          {
+            type: imageResponse.data.type,
+          }
         );
-       const imageFile = await converUrlToFile(responseImage.data,response.data.imageName)
-        setImage(imageFile);     
-        setUpdateProduct(response.data);
+
+        setImage(imageFile);
       } catch (error) {
-        console.error("Error fetching product:", error);
+        console.log("Fetch product error", error);
       }
     };
 
     fetchProduct();
   }, [id]);
 
-  useEffect(() => {
-    console.log("image Updated", image);
-  }, [image]);
-
-
-
-  const converUrlToFile = async(blobData, fileName) => {
-    const file = new File([blobData], fileName, { type: blobData.type });
-    return file;
-  }
- 
-  const handleSubmit = async(e) => {
-    e.preventDefault();
-    console.log("images", image)
-    console.log("productsdfsfsf", updateProduct)
-    const updatedProduct = new FormData();
-    updatedProduct.append("imageFile", image);
-    updatedProduct.append(
-      "product",
-      new Blob([JSON.stringify(updateProduct)], { type: "application/json" })
-    );
-  
-
-  console.log("formData : ", updatedProduct)
-    axios
-      .put(`http://localhost:8080/api/product/${id}`, updatedProduct, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        console.log("Product updated successfully:", updatedProduct);
-        alert("Product updated successfully!");
-      })
-      .catch((error) => {
-        console.error("Error updating product:", error);
-        console.log("product unsuccessfull update",updateProduct)
-        alert("Failed to update product. Please try again.");
-      });
-  };
- 
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUpdateProduct({
-      ...updateProduct,
-      [name]: value,
-    });
+    const { name, value, type, checked } = e.target;
+    setUpdateProduct((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
-  
+
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
   };
-  
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append(
+        "product",
+        new Blob(
+          [
+            JSON.stringify({
+              ...updateProduct,
+              price: Number(updateProduct.price),
+              quantity: Number(updateProduct.quantity),
+            }),
+          ],
+          {
+            type: "application/json",
+          }
+        )
+      );
+
+      if (image) {
+        formData.append("imageFile", image);
+      }
+
+      await API.put(
+        `/product/${id}`,
+        formData
+      );
+
+      alert("Product updated successfully");
+      fetchProducts();
+      navigate(`/product/${id}`);
+    } catch (error) {
+      console.log("Update error", error);
+      alert("Failed to update product");
+    }
+  };
 
   return (
-    <div className="update-product-container" >
-      <div className="center-container"style={{marginTop:"7rem"}}>
-        <h1>Update Product</h1>
-        <form className="row g-3 pt-1" onSubmit={handleSubmit}>
-          <div className="col-md-6">
-            <label className="form-label">
-              <h6>Name</h6>
+    <div
+      className="min-h-screen bg-gray-100 flex justify-center items-center p-6"
+    >
+      <div
+        className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-4xl"
+      >
+        <h1 className="text-3xl font-bold mb-8">
+          Update Product
+        </h1>
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
+
+          {/* Name */}
+          <div>
+            <label className="font-semibold">
+              Name
             </label>
             <input
               type="text"
-              className="form-control"
-              placeholder={product.name}
+              name="name"
               value={updateProduct.name}
               onChange={handleChange}
-              name="name"
+              className="w-full border rounded-lg p-3 mt-2"
             />
           </div>
-          <div className="col-md-6">
-            <label className="form-label">
-              <h6>Brand</h6>
+
+          {/* Brand */}
+          <div>
+            <label className="font-semibold">
+              Brand
             </label>
             <input
               type="text"
               name="brand"
-              className="form-control"
-              placeholder={product.brand}
               value={updateProduct.brand}
               onChange={handleChange}
-              id="brand"
+              className="w-full border rounded-lg p-3 mt-2"
             />
           </div>
-          <div className="col-12">
-            <label className="form-label">
-              <h6>Description</h6>
+
+          {/* Description */}
+          <div className="md:col-span-2">
+            <label className="font-semibold">
+              Description
             </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder={product.description}
+            <textarea
               name="description"
-              onChange={handleChange}
               value={updateProduct.description}
-              id="description"
+              onChange={handleChange}
+              rows={5}
+              className="w-full border rounded-lg p-3 mt-2"
             />
           </div>
-          <div className="col-5">
-            <label className="form-label">
-              <h6>Price</h6>
+
+          {/* Price */}
+          <div>
+            <label className="font-semibold">
+              Price
             </label>
+
             <input
               type="number"
-              className="form-control"
-              onChange={handleChange}
-              value={updateProduct.price}
-              placeholder={product.price}
               name="price"
-              id="price"
+              value={updateProduct.price}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-3 mt-2"
             />
           </div>
-          <div className="col-md-6">
-            <label className="form-label">
-              <h6>Category</h6>
+
+          {/* Quantity */}
+          <div>
+            <label className="font-semibold">
+              Quantity
             </label>
+
+            <input
+              type="number"
+              name="quantity"
+              value={updateProduct.quantity}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-3 mt-2"
+            />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="font-semibold">
+              Category
+            </label>
+
             <select
-              className="form-select"
+              name="category"
               value={updateProduct.category}
               onChange={handleChange}
-              name="category"
-              id="category"
+              className="w-full border rounded-lg p-3 mt-2"
             >
               <option value="">Select category</option>
-              <option value="laptop">Laptop</option>
-              <option value="headphone">Headphone</option>
-              <option value="mobile">Mobile</option>
-              <option value="electronics">Electronics</option>
-              <option value="toys">Toys</option>
-              <option value="fashion">Fashion</option>
+              <option value="Laptop">Laptop</option>
+              <option value="Headphone">Headphone</option>
+              <option value="Mobile">Mobile</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Toys">Toys</option>
+              <option value="Fashion">Fashion</option>
             </select>
           </div>
 
-          <div className="col-md-4">
-            <label className="form-label">
-              <h6>Stock Quantity</h6>
+          {/* Release Date */}
+          <div>
+            <label className="font-semibold">
+              Release Date
             </label>
+
             <input
-              type="number"
-              className="form-control"
+              type="date"
+              name="release_date"
+              value={updateProduct.release_date?.split("T")[0] || ""}
               onChange={handleChange}
-              placeholder={product.stockQuantity}
-              value={updateProduct.stockQuantity}
-              name="stockQuantity"
-              id="stockQuantity"
+              className="w-full border rounded-lg p-3 mt-2"
             />
-          </div>
-          <div className="col-md-8">
-            <label className="form-label">
-              <h6>Image</h6>
-            </label>
-            <img
-              src={image ? URL.createObjectURL(image) : "Image unavailable"}
-              alt={product.imageName}
-              style={{
-                width: "100%",
-                height: "180px",
-                objectFit: "cover",
-                padding: "5px",
-                margin: "0",
-              }}
-            />
-            <input
-              className="form-control"
-              type="file"
-              onChange={handleImageChange}
-              placeholder="Upload image"
-              name="imageUrl"
-              id="imageUrl"
-            />
-          </div>
-          <div className="col-12">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                name="productAvailable"
-                id="gridCheck"
-                checked={updateProduct.productAvailable}
-                onChange={(e) =>
-                  setUpdateProduct({ ...updateProduct, productAvailable: e.target.checked })
-                }
-              />
-              <label className="form-check-label">Product Available</label>
-            </div>
           </div>
 
-          <div className="col-12">
-            <button type="submit" className="btn btn-primary">
-              Submit
-            </button>
+          {/* Image */}
+          <div className="md:col-span-2">
+
+            <label className="font-semibold">
+              Product Image
+            </label>
+
+            {image && (
+              <img
+                src={URL.createObjectURL(image)}
+                alt="preview"
+                className="w-full h-60 object-cover rounded-xl mt-4"
+              />
+            )}
+
+            <input
+              type="file"
+              onChange={handleImageChange}
+              className="w-full border rounded-lg p-3 mt-4"
+            />
           </div>
+
+          {/* Available */}
+          <div className="md:col-span-2 flex items-center gap-3">
+
+            <input
+              type="checkbox"
+              name="available"
+              checked={updateProduct.available}
+              onChange={handleChange}
+            />
+
+            <label>
+              Product Available
+            </label>
+
+          </div>
+
+          {/* Submit */}
+          <div className="md:col-span-2">
+
+            <button
+              type="submit"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold"
+            >
+              Update Product
+            </button>
+
+          </div>
+
         </form>
+
       </div>
+
     </div>
   );
 };
