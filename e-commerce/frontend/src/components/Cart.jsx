@@ -77,7 +77,7 @@ const Cart = () => {
         }
         alert("No more stock available");
       }
-      
+
       return item;
     });
 
@@ -156,15 +156,15 @@ const Cart = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
-      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold mb-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 py-10 px-4 transition-colors duration-300">
+      <div className="max-w-5xl mx-auto bg-white dark:bg-gray-900 rounded-3xl shadow-xl p-8">
+        <h1 className="text-3xl font-bold mb-8 dark:text-gray-100">
           Shopping Cart
         </h1>
 
         {cartItems.length === 0 ? (
           <div className="text-center py-20">
-            <h2 className="text-2xl font-semibold text-gray-500">
+            <h2 className="text-2xl font-semibold text-gray-500 dark:text-gray-300">
               Your cart is empty
             </h2>
           </div>
@@ -174,7 +174,7 @@ const Cart = () => {
               {cartItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col md:flex-row items-center justify-between gap-6 border rounded-2xl p-5 shadow-sm"
+                  className="flex flex-col md:flex-row items-center justify-between gap-6 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm bg-white dark:bg-gray-800 transition-colors duration-300"
                 >
                   {/* Image */}
                   <img
@@ -184,11 +184,11 @@ const Cart = () => {
                   />
 
                   {/* Info */}
-                  <div className="flex-1">
+                  <div className="flex-1 dark:text-gray-300">
                     <h2 className="text-xl font-bold">
                       {item.name}
                     </h2>
-                    <p className="text-gray-500">
+                    <p className="text-gray-500 dark:text-gray-400">
                       {item.brand}
                     </p>
                     <p className="mt-2 text-lg font-semibold">
@@ -202,25 +202,25 @@ const Cart = () => {
                       onClick={() =>
                         handleDecreaseQuantity(item.id)
                       }
-                      className="w-10 h-10 bg-gray-200 rounded-lg text-xl"
+                      className="w-10 h-10 bg-gray-200 dark:bg-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg text-xl transition-colors duration-300"
                     >
                       -
                     </button>
-                    <span className="text-lg font-semibold">
+                    <span className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                       {item.cartQuantity}
                     </span>
                     <button
                       onClick={() =>
                         handleIncreaseQuantity(item.id)
                       }
-                      className="w-10 h-10 bg-gray-200 rounded-lg text-xl"
+                      className="w-10 h-10 bg-gray-200 dark:bg-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg text-xl transition-colors duration-300"
                     >
                       +
                     </button>
                   </div>
 
                   {/* Total */}
-                  <div className="text-xl font-bold">
+                  <div className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
                     ₹ {item.price * item.cartQuantity}
                   </div>
 
@@ -238,13 +238,13 @@ const Cart = () => {
             </div>
 
             {/* Footer */}
-            <div className="mt-10 border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-5">
-              <h2 className="text-3xl font-bold">
+            <div className="mt-10 border-t border-gray-200 dark:border-gray-700 pt-6 flex flex-col md:flex-row items-center justify-between gap-5">
+              <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
                 Total: ₹ {totalPrice.toFixed(2)}
               </h2>
               <Button
                 onClick={handleCheckout}
-                className="px-10 py-3 rounded-2xl text-lg"
+                className="px-10 py-3 rounded-2xl text-lg bg-indigo-600 hover:bg-indigo-700 border-none cursor-pointer"
               >
                 Checkout
               </Button>

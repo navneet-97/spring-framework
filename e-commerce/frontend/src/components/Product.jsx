@@ -69,7 +69,7 @@ const Product = () => {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <h2 className="text-2xl font-semibold text-gray-700 animate-pulse">
+                <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 animate-pulse">
                     Loading Product...
                 </h2>
             </div>
@@ -87,15 +87,15 @@ const Product = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 py-10 px-5">
-            <div className="max-w-7xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-950 py-10 px-4 transition-colors duration-300">
+            <div className="max-w-7xl mx-auto bg-white dark:bg-gray-900 rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
 
                 {/* Product Image */}
-                <div className="bg-gray-100 flex items-center justify-center p-8">
+                <div className="bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-8">
                     <img
                         src={product.imageUrl}
                         alt={product.name}
-                        className="w-full max-w-lg h-50px object-cover rounded-2xl shadow-md"
+                        className="w-full max-w-lg h-125 object-cover rounded-2xl shadow-md"
                     />
                 </div>
 
@@ -119,7 +119,7 @@ const Product = () => {
                         </div>
 
                         {/* Product Name */}
-                        <h1 className="text-4xl font-bold text-gray-800 capitalize leading-tight">
+                        <h1 className="text-4xl font-bold text-gray-800 dark:text-white capitalize leading-tight">
                             {product.name}
                         </h1>
 
@@ -137,7 +137,7 @@ const Product = () => {
 
                         {/* Description */}
                         <div className="mt-10">
-                            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
                                 Product Description
                             </h3>
 
@@ -148,7 +148,7 @@ const Product = () => {
 
                         {/* Stock */}
                         <div className="mt-8">
-                            <p className="text-lg font-medium text-gray-700">
+                            <p className="text-lg font-medium text-gray-700 dark:text-gray-200">
                                 Stock Available:
                                 <span className="ml-2 text-green-600 font-bold">
                                     {product.quantity}
@@ -164,7 +164,7 @@ const Product = () => {
                         <button
                             onClick={handleAddToCart}
                             disabled={!product.available}
-                            className={`px-8 py-4 rounded-2xl font-semibold transition-all duration-300 ${product.available
+                            className={`cursor-pointer px-8 py-4 rounded-2xl font-semibold transition-all duration-300 ${product.available
                                 ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg hover:shadow-xl"
                                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 }`}
@@ -177,7 +177,7 @@ const Product = () => {
                         {/* Update */}
                         <button
                             onClick={handleEditClick}
-                            className="px-8 py-4 rounded-2xl font-semibold bg-yellow-500 hover:bg-yellow-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+                            className="px-8 py-4 rounded-2xl font-semibold bg-yellow-500 hover:bg-yellow-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
                         >
                             Update
                         </button>
@@ -185,7 +185,7 @@ const Product = () => {
                         {/* Delete */}
                         <button
                             onClick={deleteProduct}
-                            className="px-8 py-4 rounded-2xl font-semibold bg-red-500 hover:bg-red-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+                            className="px-8 py-4 rounded-2xl font-semibold bg-red-500 hover:bg-red-600 text-white transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
                         >
                             Delete
                         </button>

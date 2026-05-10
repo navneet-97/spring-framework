@@ -103,65 +103,68 @@ const UpdateProduct = () => {
   };
 
   return (
-    <div
-      className="min-h-screen bg-gray-100 flex justify-center items-center p-6"
-    >
-      <div
-        className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-4xl"
-      >
-        <h1 className="text-3xl font-bold mb-8">
-          Update Product
-        </h1>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 py-10 px-4 transition-colors duration-300">
+      <div className="max-w-5xl mx-auto bg-white dark:bg-gray-900 shadow-2xl rounded-3xl overflow-hidden">
+
+        <div className="bg-indigo-600 px-8 py-6">
+          <h1 className="text-3xl font-bold text-white">
+            Update Product
+          </h1>
+        </div>
+
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6"
         >
 
-          {/* Name */}
           <div>
-            <label className="font-semibold">
-              Name
+            <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
+              Product Name
             </label>
+
             <input
               type="text"
               name="name"
               value={updateProduct.name}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
             />
           </div>
 
-          {/* Brand */}
           <div>
-            <label className="font-semibold">
+            <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
               Brand
             </label>
+
             <input
               type="text"
               name="brand"
               value={updateProduct.brand}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
             />
           </div>
 
           {/* Description */}
           <div className="md:col-span-2">
-            <label className="font-semibold">
+            <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
               Description
             </label>
+
             <textarea
               name="description"
               value={updateProduct.description}
               onChange={handleChange}
-              rows={5}
-              className="w-full border rounded-lg p-3 mt-2"
+              rows="5"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              required
             />
           </div>
 
-          {/* Price */}
           <div>
-            <label className="font-semibold">
+            <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
               Price
             </label>
 
@@ -170,14 +173,15 @@ const UpdateProduct = () => {
               name="price"
               value={updateProduct.price}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
             />
           </div>
 
           {/* Quantity */}
           <div>
-            <label className="font-semibold">
-              Quantity
+            <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
+              Stock Quantity
             </label>
 
             <input
@@ -185,13 +189,14 @@ const UpdateProduct = () => {
               name="quantity"
               value={updateProduct.quantity}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
             />
           </div>
 
           {/* Category */}
           <div>
-            <label className="font-semibold">
+            <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
               Category
             </label>
 
@@ -199,9 +204,10 @@ const UpdateProduct = () => {
               name="category"
               value={updateProduct.category}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
             >
-              <option value="">Select category</option>
+              <option value="">Select Category</option>
               <option value="Laptop">Laptop</option>
               <option value="Headphone">Headphone</option>
               <option value="Mobile">Mobile</option>
@@ -213,23 +219,23 @@ const UpdateProduct = () => {
 
           {/* Release Date */}
           <div>
-            <label className="font-semibold">
+            <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
               Release Date
             </label>
 
             <input
               type="date"
               name="release_date"
-              value={updateProduct.release_date?.split("T")[0] || ""}
+              value={updateProduct.release_date}
               onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
             />
           </div>
 
           {/* Image */}
           <div className="md:col-span-2">
-
-            <label className="font-semibold">
+            <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
               Product Image
             </label>
 
@@ -237,31 +243,31 @@ const UpdateProduct = () => {
               <img
                 src={URL.createObjectURL(image)}
                 alt="preview"
-                className="w-full h-60 object-cover rounded-xl mt-4"
+                className="mb-4 w-full h-60 object-cover rounded-xl mt-4"
               />
             )}
 
             <input
               type="file"
               onChange={handleImageChange}
-              className="w-full border rounded-lg p-3 mt-4"
+              className="w-full border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white rounded-xl p-4 cursor-pointer"
+              required
             />
           </div>
 
           {/* Available */}
           <div className="md:col-span-2 flex items-center gap-3">
-
             <input
               type="checkbox"
               name="available"
               checked={updateProduct.available}
               onChange={handleChange}
+              className="w-5 h-5 accent-indigo-600"
             />
 
-            <label>
+            <label className="font-medium text-gray-700 dark:text-gray-200">
               Product Available
             </label>
-
           </div>
 
           {/* Submit */}
@@ -269,17 +275,14 @@ const UpdateProduct = () => {
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold cursor-pointer"
             >
               Update Product
             </button>
 
           </div>
-
         </form>
-
       </div>
-
     </div>
   );
 };

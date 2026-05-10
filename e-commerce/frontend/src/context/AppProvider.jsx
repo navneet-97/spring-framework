@@ -61,16 +61,27 @@ export const AppProvider = ({ children }) => {
 
     useEffect(() => {
         fetchProducts();
-    }, [API]);
+    }, []);
 
     useEffect(() => {
         localStorage.setItem("cart-items", JSON.stringify(cart));
     }, [cart]);
 
+    useEffect(() => {
+        const root = window.document.documentElement;
+        if (theme === "dark") {
+            root.classList.add("dark");
+        } else {
+            root.classList.remove("dark");
+        }
+
+        localStorage.setItem("theme", theme);
+    }, [theme]);
+
     const toggleTheme = () => {
-        const newTheme = theme === "light" ? "dark" : "light";
-        setTheme(newTheme);
-        localStorage.setItem("theme", newTheme);
+        setTheme((prev) =>
+            prev === "light" ? "dark" : "light"
+        );
     };
 
     const addToCart = (product) => {
@@ -84,8 +95,9 @@ export const AppProvider = ({ children }) => {
                     item.id === product.id
                         ? {
                             ...item,
-                            cartQuantity:
-                                item.cartQuantity + 1,
+                            cartQuantity: item.cartQuantity < item.quantity
+                                ? item.cartQuantity + 1
+                                : item.cartQuantity
                         }
                         : item
                 )

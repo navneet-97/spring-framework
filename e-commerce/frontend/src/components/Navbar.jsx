@@ -29,14 +29,14 @@ const Navbar = () => {
     ];
 
     return (
-        <header className="sticky top-0 z-50 bg-white shadow-md">
+        <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md border-b dark:border-gray-800 transition-colors duration-300">
             <nav className="max-w-7xl mx-auto px-4 py-4">
                 <div className="flex items-center justify-between">
 
                     {/* Logo */}
                     <Link
                         to="/"
-                        className="text-2xl font-bold text-indigo-600 tracking-wide"
+                        className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 tracking-wide"
                     >
                         E-Commerce
                     </Link>
@@ -45,7 +45,7 @@ const Navbar = () => {
                     <div className="hidden lg:flex items-center gap-8">
 
                         {/* Nav Links */}
-                        <ul className="flex items-center gap-6 text-gray-700 font-medium">
+                        <ul className="flex items-center gap-6 text-gray-700 dark:text-gray-200 font-medium">
                             <li>
                                 <NavLink
                                     to="/"
@@ -68,13 +68,13 @@ const Navbar = () => {
                             <li className="relative">
                                 <button
                                     onClick={() => setCategoryOpen(!categoryOpen)}
-                                    className="hover:text-indigo-600 transition"
+                                    className="hover:text-indigo-600 transition cursor-pointer"
                                 >
                                     Categories
                                 </button>
 
                                 {categoryOpen && (
-                                    <ul className="absolute top-10 left-0 w-52 bg-white rounded-xl shadow-lg border py-2">
+                                    <ul className="absolute top-10 left-0 w-52 bg-white dark:bg-gray-900 rounded-xl shadow-lg border py-2">
                                         {categories.map((category) => (
                                             <li key={category}>
                                                 <Link
@@ -102,16 +102,16 @@ const Navbar = () => {
                                     setInput(e.target.value);
                                     navigate(`/?search=${e.target.value}`);
                                 }}
-                                className="w-72 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-72 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
 
                         {/* Theme Toggle */}
                         <button
                             onClick={toggleTheme}
-                            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
+                            className="p-2 rounded-full bg-gray-100 dark:bg-gray-900 transition cursor-pointer"
                         >
-                            {theme === "dark" ? "🌙" : "☀️"}
+                            {theme === "dark" ? "☀️" : "🌙"}
                         </button>
 
                         {/* Cart */}

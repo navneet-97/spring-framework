@@ -1,8 +1,9 @@
 import React from "react";
 import getData from "../services/useContext.js";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 const Home = () => {
+    const navigate = useNavigate();
     const location = useLocation();
     const selectedCategory = location.state?.category;
     const [searchParams] = useSearchParams();
@@ -14,11 +15,11 @@ const Home = () => {
         error,
         addToCart,
     } = getData();
-    
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <h2 className="text-2xl font-semibold text-gray-700 animate-pulse">
+                <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 animate-pulse">
                     Loading Products...
                 </h2>
             </div>
@@ -44,14 +45,20 @@ const Home = () => {
         : categoryWiseProducts;
 
     return (
-        <div className="min-h-screen bg-gray-100 px-6 py-10">
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-950 px-6 py-10 transition-colors duration-300">
             <div className="max-w-7xl mx-auto">
 
                 {filteredProducts.length === 0 ? (
-                    <div className="flex items-center justify-center h-[50vh]">
+                    <div className="flex items-center justify-center h-[50vh] flex-col">
                         <h2 className="text-2xl font-semibold text-gray-500">
                             {selectedCategory ? `No Products Available in ${selectedCategory} Category` : "No Products Available"}
                         </h2>
+                        {selectedCategory && <button
+                            onClick={() => navigate("/")}
+                            className={`mt-3 px-2 py-2 rounded-xl font-semibold transition-all duration-300 bg-indigo-500 hover:bg-indigo-600 text-white cursor-pointer`}
+                        >
+                            Go Home
+                        </button>}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
@@ -68,7 +75,7 @@ const Home = () => {
                             return (
                                 <div
                                     key={id}
-                                    className={`group rounded-2xl overflow-hidden bg-white shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border ${!available
+                                    className={`group rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border ${!available
                                         ? "opacity-70"
                                         : ""
                                         }`}
@@ -87,11 +94,11 @@ const Home = () => {
 
                                         <div className="p-5 flex flex-col justify-between h-55">
                                             <div>
-                                                <h2 className="text-lg font-bold text-gray-800 line-clamp-2">
+                                                <h2 className="text-lg font-bold text-gray-800 dark:text-white line-clamp-2">
                                                     {name}
                                                 </h2>
 
-                                                <p className="text-sm text-gray-500 italic mt-1">
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 italic mt-1">
                                                     ~ {brand}
                                                 </p>
 

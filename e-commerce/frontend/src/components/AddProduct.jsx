@@ -3,7 +3,7 @@ import getData from "../services/useContext";
 import { useNavigate } from "react-router-dom";
 
 const AddProduct = () => {
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     const { API, fetchProducts } = getData();
     const [product, setProduct] = useState({
         name: "",
@@ -76,8 +76,8 @@ const AddProduct = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 py-10 px-4">
-            <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-3xl overflow-hidden">
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-950 py-10 px-4 transition-colors duration-300">
+            <div className="max-w-5xl mx-auto bg-white dark:bg-gray-900 shadow-2xl rounded-3xl overflow-hidden">
 
                 {/* Header */}
                 <div className="bg-indigo-600 px-8 py-6">
@@ -98,7 +98,7 @@ const AddProduct = () => {
 
                     {/* Product Name */}
                     <div>
-                        <label className="block mb-2 font-semibold text-gray-700">
+                        <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
                             Product Name
                         </label>
 
@@ -108,14 +108,14 @@ const AddProduct = () => {
                             value={product.name}
                             onChange={handleInputChange}
                             placeholder="Enter product name"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
                         />
                     </div>
 
                     {/* Brand */}
                     <div>
-                        <label className="block mb-2 font-semibold text-gray-700">
+                        <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
                             Brand
                         </label>
 
@@ -125,14 +125,14 @@ const AddProduct = () => {
                             value={product.brand}
                             onChange={handleInputChange}
                             placeholder="Enter brand"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
                         />
                     </div>
 
                     {/* Description */}
                     <div className="md:col-span-2">
-                        <label className="block mb-2 font-semibold text-gray-700">
+                        <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
                             Description
                         </label>
 
@@ -142,14 +142,14 @@ const AddProduct = () => {
                             onChange={handleInputChange}
                             rows="5"
                             placeholder="Write product description..."
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
                             required
                         />
                     </div>
 
                     {/* Price */}
                     <div>
-                        <label className="block mb-2 font-semibold text-gray-700">
+                        <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
                             Price
                         </label>
 
@@ -159,14 +159,14 @@ const AddProduct = () => {
                             value={product.price}
                             onChange={handleInputChange}
                             placeholder="Enter price"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
                         />
                     </div>
 
                     {/* Category */}
                     <div>
-                        <label className="block mb-2 font-semibold text-gray-700">
+                        <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
                             Category
                         </label>
 
@@ -174,7 +174,7 @@ const AddProduct = () => {
                             name="category"
                             value={product.category}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
                         >
                             <option value="">Select Category</option>
@@ -189,7 +189,7 @@ const AddProduct = () => {
 
                     {/* Stock Quantity */}
                     <div>
-                        <label className="block mb-2 font-semibold text-gray-700">
+                        <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
                             Stock Quantity
                         </label>
 
@@ -199,14 +199,14 @@ const AddProduct = () => {
                             value={product.quantity}
                             onChange={handleInputChange}
                             placeholder="Available stock"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
                         />
                     </div>
 
                     {/* Release Date */}
                     <div>
-                        <label className="block mb-2 font-semibold text-gray-700">
+                        <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
                             Release Date
                         </label>
 
@@ -215,21 +215,21 @@ const AddProduct = () => {
                             name="release_date"
                             value={product.release_date}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
                         />
                     </div>
 
                     {/* Image Upload */}
                     <div className="md:col-span-2">
-                        <label className="block mb-2 font-semibold text-gray-700">
+                        <label className="block mb-2 font-semibold text-gray-700 dark:text-gray-200">
                             Product Image
                         </label>
 
                         <input
                             type="file"
                             onChange={handleImageChange}
-                            className="w-full border border-dashed border-gray-400 rounded-xl p-4 bg-gray-50 cursor-pointer"
+                            className="w-full border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-black dark:text-white rounded-xl p-4 cursor-pointer"
                             required
                         />
                     </div>
@@ -244,7 +244,7 @@ const AddProduct = () => {
                             className="w-5 h-5 accent-indigo-600"
                         />
 
-                        <label className="font-medium text-gray-700">
+                        <label className="font-medium text-gray-700 dark:text-gray-200">
                             Product Available
                         </label>
                     </div>
