@@ -7,6 +7,9 @@ import AddProduct from './components/AddProduct';
 import Cart from './components/Cart';
 import Product from './components/Product';
 import UpdateProduct from './components/UpdateProduct';
+import Signup from './components/SignUp';
+import Login from './components/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
 
@@ -16,10 +19,12 @@ const App = () => {
         <NavBar />
         <Routes>
           <Route path='/' element={<Home />} />
-          <Route path='/add_product' element={<AddProduct />} />
-          <Route path='/cart' element={<Cart />} />
+          <Route path='/add_product' element={<ProtectedRoute><AddProduct /></ProtectedRoute>} />
+          <Route path='/cart' element={<ProtectedRoute><Cart /></ProtectedRoute>} />
           <Route path='/product/:id' element={<Product />} />
-          <Route path='/product/update/:id' element={<UpdateProduct />} />
+          <Route path='/product/update/:id' element={<ProtectedRoute><AddProduct /></ProtectedRoute>} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/signup' element={<Signup />} />
         </Routes>
       </BrowserRouter>
     </AppProvider>

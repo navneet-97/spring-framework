@@ -1,4 +1,4 @@
-package com.development.backend;
+package com.development.backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApiResponse {
-    private String message;
-    private boolean success;
+public class SignUpRequest {
+    private String name;
+    private String email;
+    private String password;
 }

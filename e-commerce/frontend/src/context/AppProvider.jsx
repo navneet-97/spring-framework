@@ -7,6 +7,15 @@ const API = axios.create({
     baseURL: "http://localhost:8000/api",
 });
 
+API.interceptors.request.use((config) => {
+    const token = localStorage.getItem("jwt-token");
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+
+    return config;
+})
+
 export const AppProvider = ({ children }) => {
 
     const [products, setProducts] = useState([]);
@@ -15,10 +24,39 @@ export const AppProvider = ({ children }) => {
     const [theme, setTheme] = useState(
         localStorage.getItem("theme") || "light"
     );
+    const [token, setToken] = useState(
+        localStorage.getItem("jwt-token") || ""
+    );
+    const [user, setUser] = useState(null);
 
     const [cart, setCart] = useState(
         JSON.parse(localStorage.getItem("cart-items")) || []
     );
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            if (!token) {
+                setUser(null);
+                return;
+            }
+            try {
+                const res = await API.get("/auth/me");
+                setUser(res.data);
+            } catch (error) {
+                console.log(error);
+                localStorage.removeItem("jwt-token");
+                setToken("");
+                setUser(null);
+            }
+        }
+        fetchCurrentUser();
+    }, [token]);
+
+    const logout = () => {
+        localStorage.removeItem("jwt-token");
+        setToken("");
+        setUser(null);
+    }
 
     const fetchProducts = async () => {
         try {
@@ -127,6 +165,7 @@ export const AppProvider = ({ children }) => {
     return (
         <AppContext.Provider
             value={{
+                user,
                 products,
                 loading,
                 error,
@@ -136,9 +175,11 @@ export const AppProvider = ({ children }) => {
                 toggleTheme,
                 cart,
                 addToCart,
+                logout,
                 removeFromCart,
                 clearCart,
-                setCart
+                setCart,
+                setToken
             }}
         >
             {children}

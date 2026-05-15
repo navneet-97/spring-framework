@@ -1,8 +1,10 @@
 package com.development.backend.controller;
 
-import com.development.backend.ApiResponse;
+import com.development.backend.dto.ApiResponse;
 import com.development.backend.model.Product;
 import com.development.backend.service.ProductService;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,7 +34,11 @@ public class ProductController {
     }
 
     @PostMapping("/product")
-    public ResponseEntity<ApiResponse> addProduct(@RequestPart Product product, @RequestPart MultipartFile imageFile) throws IOException{
+    public ResponseEntity<ApiResponse> addProduct(@RequestPart Product product, @RequestPart MultipartFile imageFile, HttpServletRequest request) throws IOException{
+        Claims claims= (Claims) request.getAttribute("user");
+        if(claims==null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse("Not Authorized",false));
+
         service.addProduct(product,imageFile);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse("Product Added Successfully",true));
@@ -49,13 +55,21 @@ public class ProductController {
     }
 
     @PutMapping("/product/{id}")
-    public ResponseEntity<ApiResponse> updateProduct(@PathVariable int id,@RequestPart Product product,@RequestPart MultipartFile imageFile) throws IOException{
+    public ResponseEntity<ApiResponse> updateProduct(@PathVariable int id,@RequestPart Product product,@RequestPart MultipartFile imageFile,HttpServletRequest request) throws IOException{
+        Claims claims= (Claims) request.getAttribute("user");
+        if(claims==null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse("Not Authorized",false));
+
         service.updateProduct(id,product,imageFile);
         return ResponseEntity.ok(new ApiResponse("Product Updated Successfully",true));
     }
 
     @DeleteMapping("/product/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable int id){
+    public ResponseEntity<?> deleteProduct(@PathVariable int id,HttpServletRequest request){
+        Claims claims= (Claims) request.getAttribute("user");
+        if(claims==null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse("Not Authorized",false));
+
         service.deleteProduct(id);
         return ResponseEntity.ok(new ApiResponse("Product Deleted Successfully",true));
     }

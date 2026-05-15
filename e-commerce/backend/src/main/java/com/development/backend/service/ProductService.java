@@ -1,6 +1,6 @@
 package com.development.backend.service;
 
-import com.development.backend.ProductNotFoundException;
+import com.development.backend.exception.ProductNotFoundException;
 import com.development.backend.model.Product;
 import com.development.backend.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -9,7 +9,7 @@ const Navbar = () => {
     const [categoryOpen, setCategoryOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("");
 
-    const { theme, toggleTheme } = getData();
+    const { theme, toggleTheme, user, logout } = getData();
 
     const handleCategorySelect = (category) => {
         setSelectedCategory(category);
@@ -113,6 +113,32 @@ const Navbar = () => {
                         >
                             {theme === "dark" ? "☀️" : "🌙"}
                         </button>
+
+                        {
+                            !user ?
+                                <>
+                                    <Link
+                                        to="/login"
+                                        className="px-4 py-2 rounded-xl border border-indigo-600 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400 hover:bg-indigo-600 hover:text-white transition cursor-pointer"
+                                    >
+                                        Login
+                                    </Link>
+
+                                    <Link
+                                        to="/signup"
+                                        className="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition cursor-pointer"
+                                    >
+                                        Signup
+                                    </Link>
+                                </>
+                                :
+                                <button
+                                    onClick={logout}
+                                    className="px-4 py-2 rounded-xl border border-indigo-600 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400 hover:bg-indigo-600 hover:text-white transition cursor-pointer"
+                                >
+                                    Logout
+                                </button>
+                        }
 
                         {/* Cart */}
                         <Link
